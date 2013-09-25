@@ -788,8 +788,7 @@ public class Volumes extends AbstractVolumeSupport {
                     if( state == null ) {
                         volume.setCurrentState(VolumeState.PENDING);
                     }
-                    else if( state.equalsIgnoreCase("created") || state.equalsIgnoreCase("ready")
-                            || state.equalsIgnoreCase("allocated") || state.equalsIgnoreCase("uploaded")) {
+                    else if( state.equalsIgnoreCase("created") || state.equalsIgnoreCase("ready") || state.equalsIgnoreCase("allocated") ) {
                         volume.setCurrentState(VolumeState.AVAILABLE);
                     }
                     else {
