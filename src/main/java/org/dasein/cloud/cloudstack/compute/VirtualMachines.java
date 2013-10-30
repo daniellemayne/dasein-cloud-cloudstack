@@ -57,14 +57,7 @@ import org.dasein.cloud.cloudstack.CSVersion;
 import org.dasein.cloud.cloudstack.Param;
 import org.dasein.cloud.cloudstack.network.Network;
 import org.dasein.cloud.cloudstack.network.SecurityGroup;
-import org.dasein.cloud.compute.AbstractVMSupport;
-import org.dasein.cloud.compute.Architecture;
-import org.dasein.cloud.compute.ImageClass;
-import org.dasein.cloud.compute.Platform;
-import org.dasein.cloud.compute.VMLaunchOptions;
-import org.dasein.cloud.compute.VirtualMachine;
-import org.dasein.cloud.compute.VirtualMachineProduct;
-import org.dasein.cloud.compute.VmState;
+import org.dasein.cloud.compute.*;
 import org.dasein.cloud.network.RawAddress;
 import org.dasein.cloud.util.APITrace;
 import org.dasein.util.CalendarWrapper;
@@ -74,6 +67,8 @@ import org.dasein.util.uom.storage.Storage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import org.logicblaze.lingo.util.DefaultTimeoutMap;
 
 public class VirtualMachines extends AbstractVMSupport {
     static public final Logger logger = Logger.getLogger(VirtualMachines.class);
@@ -90,7 +85,7 @@ public class VirtualMachines extends AbstractVMSupport {
     static private Map<String,Map<String,String>>          customNetworkMappings;
     static private Map<String,Map<String,Set<String>>>     customServiceMappings; 
     
-    static private Map<String,Map<Architecture,Collection<VirtualMachineProduct>>> productCache = new HashMap<String, Map<Architecture, Collection<VirtualMachineProduct>>>();
+    static private DefaultTimeoutMap productCache = new DefaultTimeoutMap();
     
     private CSCloud provider;
     
@@ -628,18 +623,21 @@ public class VirtualMachines extends AbstractVMSupport {
         
         VirtualMachine vm = null;
         
-        Document responseDoc = provider.waitForJob(doc, "Launch Server");
+        if (serverId == null) {
+            //only wait for job if we don't already have the resource id
+            Document responseDoc = provider.waitForJob(doc, "Launch Server");
         
-        //parse vm from job completion response to capture vm passwords on initial launch.
-        if (responseDoc != null){
-        	NodeList nodeList = responseDoc.getElementsByTagName("virtualmachine");
-        	if (nodeList.getLength() > 0) { 
-        		Node virtualMachine = nodeList.item(0);
-            	vm = toVirtualMachine(virtualMachine);
-            	if( vm != null ) {
- 	                return vm;
- 	            }
-        	}
+            //parse vm from job completion response to capture vm passwords on initial launch.
+            if (responseDoc != null){
+                NodeList nodeList = responseDoc.getElementsByTagName("virtualmachine");
+                if (nodeList.getLength() > 0) {
+                    Node virtualMachine = nodeList.item(0);
+                    vm = toVirtualMachine(virtualMachine);
+                    if( vm != null ) {
+                        return vm;
+                    }
+                }
+            }
         }
         
         if (vm == null){
@@ -708,14 +706,13 @@ public class VirtualMachines extends AbstractVMSupport {
                 throw new CloudException("No context was configured for this request");
             }
             Map<Architecture,Collection<VirtualMachineProduct>> cached;
-            //String endpoint = provider.getContext().getEndpoint();
-
-            // No longer caching by endpoint- different accounts may return different products...
-            //   so we'll cache by account instead.
+            String endpoint = provider.getContext().getEndpoint();
             String accountId = provider.getContext().getAccountNumber();
+            String regionId = provider.getContext().getRegionId();
 
-            if( productCache.containsKey(accountId) ) {
-                cached = productCache.get(accountId);
+            productCache.purge();
+            cached = (HashMap<Architecture, Collection<VirtualMachineProduct>>) productCache.get(endpoint+"_"+accountId+"_"+regionId);
+            if (cached != null && !cached.isEmpty()) {
                 if( cached.containsKey(architecture) ) {
                     Collection<VirtualMachineProduct> products = cached.get(architecture);
 
@@ -726,7 +723,7 @@ public class VirtualMachines extends AbstractVMSupport {
             }
             else {
                 cached = new HashMap<Architecture, Collection<VirtualMachineProduct>>();
-                productCache.put(accountId, cached);
+                productCache.put(endpoint+"_"+accountId+"_"+regionId, cached, CalendarWrapper.HOUR * 4);
             }
             List<VirtualMachineProduct> products;
             Set<String> mapping = null;
@@ -1232,6 +1229,16 @@ public class VirtualMachines extends AbstractVMSupport {
         if( productId != null ) {
             server.setProductId(productId);
         }
+        if (server.getPlatform().equals(Platform.UNKNOWN)){
+            Templates support = provider.getComputeServices().getImageSupport();
+            if (support != null){
+                MachineImage image =support.getImage(server.getProviderMachineImageId());
+                if (image != null){
+                    server.setPlatform(image.getPlatform());
+                }
+            }
+        }
+
         setFirewalls(server);
         return server;
     }
