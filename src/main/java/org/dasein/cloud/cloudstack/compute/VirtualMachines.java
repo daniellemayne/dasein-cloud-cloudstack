@@ -1242,13 +1242,13 @@ public class VirtualMachines extends AbstractVMSupport {
         VirtualMachine server = new VirtualMachine();
         NodeList attributes = node.getChildNodes();
         String productId = null;
-        
-        server.setTags(properties);
+
         server.setProviderOwnerId(provider.getContext().getAccountNumber());
         server.setClonable(false);
         server.setImagable(false);
         server.setPausable(true);
         server.setPersistent(true);
+        server.setArchitecture(Architecture.I64);
         for( int i=0; i<attributes.getLength(); i++ ) {
             Node attribute = attributes.item(i);
             String name = attribute.getNodeName().toLowerCase();
@@ -1443,22 +1443,7 @@ public class VirtualMachines extends AbstractVMSupport {
         if( productId != null ) {
             server.setProductId(productId);
         }
-        if (server.getPlatform().equals(Platform.UNKNOWN) || server.getArchitecture() == null){
-            Templates support = provider.getComputeServices().getImageSupport();
-            if (support != null){
-                MachineImage image =support.getImage(server.getProviderMachineImageId());
-                if (image != null){
-                    if (server.getPlatform().equals(Platform.UNKNOWN)) {
-                        server.setPlatform(image.getPlatform());
-                    }
-                    if (server.getArchitecture() == null) {
-                        server.setArchitecture(image.getArchitecture());
-                    }
-                }
-            }
-        }
 
-        setFirewalls(server);
         /*final String finalServerId = server.getProviderVirtualMachineId();
         // commenting out for now until we can find a way to return plain text rather than encrypted
         server.setPasswordCallback(new Callable<String>() {
@@ -1468,6 +1453,7 @@ public class VirtualMachines extends AbstractVMSupport {
             }
         }
         ); */
+        server.setTags(properties);
         return server;
     }
 
