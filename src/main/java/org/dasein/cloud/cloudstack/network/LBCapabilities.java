@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2014 Dell, Inc.
+ * Copyright (C) 2009-2015 Dell, Inc.
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,7 @@ import org.dasein.cloud.network.LbPersistence;
 import org.dasein.cloud.network.LbProtocol;
 import org.dasein.cloud.network.LoadBalancerAddressType;
 import org.dasein.cloud.network.LoadBalancerCapabilities;
+import org.dasein.cloud.util.NamingConstraints;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -102,6 +103,11 @@ public class LBCapabilities extends AbstractCapabilities<CSCloud> implements Loa
     }
 
     @Override
+    public @Nonnull Requirement identifyHealthCheckOnCreateRequirement() throws CloudException, InternalException {
+        return Requirement.OPTIONAL;
+    }
+
+    @Override
     public boolean isAddressAssignedByProvider() throws CloudException, InternalException {
         return false;
     }
@@ -170,6 +176,18 @@ public class LBCapabilities extends AbstractCapabilities<CSCloud> implements Loa
 
     @Override
     public boolean supportsMultipleTrafficTypes() throws CloudException, InternalException {
+        return false;
+    }
+
+    @Override
+    public @Nonnull NamingConstraints getLoadBalancerNamingConstraints() throws CloudException, InternalException {
+        // not sure what these are from the api docs, but from the UI they don't seem
+        // to restrict on much of anything
+        return NamingConstraints.getAlphaNumeric(1, 255);
+    }
+
+    @Override
+    public boolean supportsSslCertificateStore(){
         return false;
     }
 }

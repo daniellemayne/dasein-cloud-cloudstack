@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2014 Dell, Inc.
+ * Copyright (C) 2009-2015 Dell, Inc.
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,11 +76,7 @@ public class CSMethod {
     
     public CSMethod(@Nonnull CSCloud provider) { this.provider = provider; }
     
-    public String buildUrl( String command, List<Param> params ) throws CloudException, InternalException {
-        return buildUrl(command, params.toArray(new Param[params.size()]));
-    }
-
-    public String buildUrl(String command, Param ... params) throws CloudException, InternalException {
+    private String buildUrl(String command, Param ... params) throws CloudException, InternalException {
         ProviderContext ctx = provider.getContext();
 
 
@@ -207,10 +203,14 @@ public class CSMethod {
         return new DefaultHttpClient(params);
     }
 
-    public @Nonnull Document get( @Nonnull String url, @Nonnull String command ) throws CloudException, InternalException {
+    public @Nonnull Document get(@Nonnull String command, @Nonnull List<Param> params) throws CloudException, InternalException {
+        return get(command, params.toArray(new Param[params.size()]));
+    }
+
+    public @Nonnull Document get(@Nonnull String command, Param ... params) throws CloudException, InternalException {
         Logger wire = CSCloud.getLogger(CSMethod.class, "wire");
         Logger logger = CSCloud.getLogger(CSMethod.class, "std");
-
+        String url = buildUrl(command, params);
         if( logger.isTraceEnabled() ) {
             logger.trace("enter - " + CSMethod.class.getName() + ".get(" + url + ")");
         }

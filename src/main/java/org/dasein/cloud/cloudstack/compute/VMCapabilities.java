@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2014 Dell, Inc.
+ * Copyright (C) 2009-2015 Dell, Inc.
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +77,7 @@ public class VMCapabilities extends AbstractCapabilities<CSCloud> implements Vir
 
     @Override
     public boolean canReboot(@Nonnull VmState fromState) throws CloudException, InternalException {
-        return true;
+        return !VmState.ERROR.equals(fromState);
     }
 
     @Override
@@ -87,12 +87,12 @@ public class VMCapabilities extends AbstractCapabilities<CSCloud> implements Vir
 
     @Override
     public boolean canStart(@Nonnull VmState fromState) throws CloudException, InternalException {
-        return !fromState.equals(VmState.RUNNING);
+        return !VmState.RUNNING.equals(fromState) && !VmState.ERROR.equals(fromState);
     }
 
     @Override
     public boolean canStop(@Nonnull VmState fromState) throws CloudException, InternalException {
-        return !fromState.equals(VmState.STOPPED);
+        return !fromState.equals(VmState.STOPPED) && !VmState.ERROR.equals(fromState);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class VMCapabilities extends AbstractCapabilities<CSCloud> implements Vir
     @Nullable
     @Override
     public VMScalingCapabilities getVerticalScalingCapabilities() throws CloudException, InternalException {
-        return VMScalingCapabilities.getInstance(false,true,Requirement.NONE,Requirement.NONE);
+        return VMScalingCapabilities.getInstance(false, true, false);
     }
 
     @Nonnull
@@ -214,9 +214,9 @@ public class VMCapabilities extends AbstractCapabilities<CSCloud> implements Vir
                 if( regionId == null ) {
                     throw new CloudException("No region was set for this request");
                 }
-                return (getProvider().getDataCenterServices().requiresNetwork(regionId) ? Requirement.REQUIRED : Requirement.OPTIONAL);
+                return (getProvider().getDataCenterServices().zoneSupportsVlans(regionId) ? Requirement.REQUIRED : Requirement.NONE);
             }
-            return Requirement.OPTIONAL;
+            return Requirement.NONE;
         }
         finally {
             APITrace.end();
@@ -265,6 +265,21 @@ public class VMCapabilities extends AbstractCapabilities<CSCloud> implements Vir
     @Override
     public boolean supportsSpotVirtualMachines() throws InternalException, CloudException {
         return false;
+    }
+
+    @Override
+    public boolean supportsClientRequestToken() throws InternalException, CloudException {
+        return false;
+    }
+
+    @Override
+    public boolean isVMProductDCConstrained() throws InternalException, CloudException{
+        return false;
+    }
+
+    @Override
+    public boolean supportsCloudStoredShellKey() throws InternalException, CloudException{
+        return true;
     }
 
     @Override

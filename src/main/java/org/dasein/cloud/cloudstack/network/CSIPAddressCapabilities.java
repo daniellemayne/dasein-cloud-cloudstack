@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2014 Dell, Inc.
+ * Copyright (C) 2009-2015 Dell, Inc.
  *
  * ====================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,6 +54,11 @@ public class CSIPAddressCapabilities extends AbstractCapabilities<CSCloud> imple
     @Override
     public @Nonnull Requirement identifyVlanForIPRequirement() throws CloudException, InternalException {
         return Requirement.REQUIRED;
+    }
+
+    @Override
+    public @Nonnull Requirement identifyVMForPortForwarding() throws CloudException, InternalException {
+        return Requirement.NONE;
     }
 
     @Override

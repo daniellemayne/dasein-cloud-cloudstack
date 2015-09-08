@@ -1,5 +1,4 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  
 <!--
     Copyright (C) 2010-2013 enstratius, Inc. (http://www.enstratius.com)
 
@@ -16,12 +15,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
     ====================================================================
--->  
+-->
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.dasein</groupId>
   <artifactId>dasein-cloud-cloudstack</artifactId>
-  <version>2014.11.1</version>
+  <version>2015.06.3</version>
   <packaging>jar</packaging>
 
   <name>dasein-cloud-cloudstack</name>
@@ -38,7 +37,7 @@
         <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
     </license>
   </licenses>
-  
+
   <organization>
     <name>enstratius, Inc.</name>
     <url>http://www.enstratius.com</url>
@@ -49,19 +48,19 @@
         <developerConnection>scm:git:ssh://git@github.com/greese/dasein-cloud-cloudstack.git</developerConnection>
         <url>http://github.com/greese/dasein-cloud-cloudstack</url>
     </scm>
-    
+
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
     <version>5</version>
   </parent>
-        
+
   <dependencies>
       <!-- Compile -->
     <dependency>
         <groupId>org.dasein</groupId>
         <artifactId>dasein-cloud-core</artifactId>
-        <version>2014.11.1</version>
+        <version>2015.06.1</version>
         <scope>compile</scope>
         <optional>false</optional>
     </dependency>
@@ -76,6 +75,11 @@
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
           <version>4.2.1</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.2.1</version>
       </dependency>
     <dependency>
         <groupId>log4j</groupId>
@@ -97,7 +101,7 @@
       <dependency>
           <groupId>org.dasein</groupId>
           <artifactId>dasein-cloud-test</artifactId>
-          <version>2014.11.1</version>
+          <version>2015.06.1</version>
           <scope>test</scope>
           <optional>false</optional>
       </dependency>
@@ -108,7 +112,7 @@
           <scope>test</scope>
       </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -119,7 +123,7 @@
           <source>1.6</source>
           <target>1.6</target>
         </configuration>
-      </plugin>  
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
@@ -132,7 +136,7 @@
                       <goal>jar</goal>
                   </goals>
               </execution>
-          </executions>                
+          </executions>
           <configuration>
               <encoding>utf-8</encoding>
               <quiet>true</quiet>
@@ -160,7 +164,7 @@
                     <exclude>**/LICENSE-APACHE.txt</exclude>
                 </excludes>
                 <properties>
-                    <year>2009-2014</year>
+                    <year>2009-2015</year>
                     <copyrightHolder>Dell, Inc.</copyrightHolder>
                 </properties>
             </configuration>
@@ -177,8 +181,8 @@
                           <goal>jar-no-fork</goal>
                       </goals>
                   </execution>
-              </executions> 
-        </plugin>     
+              </executions>
+        </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
@@ -225,13 +229,13 @@
                 <property>
                     <name>apiVersion</name>
                     <value>${cloudstack.version}</value>
-                </property>                
-            </systemProperties> 
-          <includes>
-            <include>**/TestSuite.java</include>
-          </includes>
+                </property>
+            </systemProperties>
+          <excludes>
+            <exclude>**/TestSuite.java</exclude>
+          </excludes>
         </configuration>
-      </plugin>   
+      </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -245,10 +249,10 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>          
+      </plugin>
     </plugins>
   </build>
-  
+
   <distributionManagement>
     <repository>
         <id>sonatype-nexus-staging</id>
@@ -258,9 +262,9 @@
     <snapshotRepository>
         <id>sonatype-nexus-snapshots</id>
         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>    
+    </snapshotRepository>
   </distributionManagement>
-  
+
   <developers>
     <developer>
         <name>George Reese</name>
@@ -273,7 +277,7 @@
         </roles>
         <url>http://www.enstratius.com</url>
         <timezone>-6</timezone>
-    </developer>  
+    </developer>
     <developer>
         <name>Morgan Catlin</name>
         <id>sylistron</id>
@@ -284,7 +288,7 @@
         </roles>
         <url>http://www.valtira.com</url>
         <timezone>-6</timezone>
-    </developer>    
+    </developer>
     <developer>
         <name>Adrian Cole</name>
         <id>ferncam1</id>
@@ -298,5 +302,5 @@
         <timezone>-8</timezone>
     </developer>
   </developers>
-    
+
 </project>
